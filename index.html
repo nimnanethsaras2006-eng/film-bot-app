@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <script src='//libtl.com/sdk.js' data-zone='10644912' data-sdk='show_10644912'></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Film Request Bot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <script src="https://alwingulla.com/88/pfe/current/tag.min.js?z=XXXXXXX" data-cfasync="false" async></script>
+
+    <style>
+        body {
+            background-color: #0e1621; color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
+        }
+        .app-container {
+            width: 90%; max-width: 400px; background: #17212b;
+            padding: 30px; border-radius: 20px; text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        h2 { color: #52a8ff; margin-bottom: 20px; }
+        input {
+            width: 100%; padding: 12px; margin-bottom: 20px;
+            border-radius: 10px; border: 1px solid #242f3d;
+            background: #242f3d; color: white; outline: none; box-sizing: border-box;
+        }
+        .btn {
+            width: 100%; padding: 15px; border-radius: 10px; border: none;
+            font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        #unlockBtn { background: #f39c12; color: #fff; }
+        #submitBtn { background: #0088cc; color: white; display: none; }
+        .status { font-size: 12px; color: #808d9a; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h2>🎬 Movie Request</h2>
+    <input type="text" id="movieInput" placeholder="Film එකේ නම මෙතන ගහන්න...">
+    
+    <button id="unlockBtn" class="btn" onclick="showTelegramAd()">🔓 Unlock to Request</button>
+    
+    <button id="submitBtn" class="btn" onclick="sendToBot()">🚀 Submit Request</button>
+    
+    <p class="status" id="statusText">බටන් එක Unlock කරන්න ඇඩ් එකක් බලන්න.</p>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // App එක ලොකු කරලා පෙන්වන්න
+
+    function showTelegramAd() {
+        // Moneytag Interstitial Ad එක පෙන්වීමට උත්සාහ කිරීම
+        if (typeof show_8888888 === 'function') { // 8888888 වෙනුවට ඔයාගේ Zone ID එක එයි
+            show_8888888().then(() => {
+                // ඇඩ් එක බලා අවසන් වූ පසු
+                unlockSubmit();
+            }).catch(() => {
+                // ඇඩ් එක පෙන්වීමට අපොහොසත් වුවහොත් (උදා: Adblock)
+                alert("Please wait a moment and try again.");
+                unlockSubmit(); // පසුවට මේක manually unlock කරන්නත් පුළුවන්
+            });
+        } else {
+            // SDK එක තාම load වෙලා නැත්නම් පොඩි වෙලාවක් දීලා unlock කරනවා
+            setTimeout(unlockSubmit, 3000);
+        }
+    }
+
+    function unlockSubmit() {
+        document.getElementById('unlockBtn').style.display = 'none';
+        document.getElementById('submitBtn').style.display = 'block';
+        document.getElementById('statusText').innerText = "දැන් ඔයාට Submit කරන්න පුළුවන්!";
+    }
+
+    function sendToBot() {
+        const movieName = document.getElementById('movieInput').value;
+        if (movieName.trim() === "") {
+            tg.showAlert("කරුණාකර Film එකේ නම ඇතුළත් කරන්න.");
+            return;
+        }
+        
+        // Bot එකට Data යැවීම
+        tg.sendData("NEW_REQUEST:" + movieName);
+        tg.close(); // ඇප් එක ඉබේම වැහෙනවා
+    }
+</script>
+
+</body>
+</html>
