@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="si">
 <head>
-  <script src='//libtl.com/sdk.js' data-zone='10644912' data-sdk='show_10644912'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10644912' data-sdk='show_10644912'></script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Film Request Bot</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <script src="https://alwingulla.com/88/pfe/current/tag.min.js?z=XXXXXXX" data-cfasync="false" async></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
         body {
@@ -25,14 +25,23 @@
             width: 100%; padding: 12px; margin-bottom: 20px;
             border-radius: 10px; border: 1px solid #242f3d;
             background: #242f3d; color: white; outline: none; box-sizing: border-box;
+            font-size: 16px;
         }
         .btn {
             width: 100%; padding: 15px; border-radius: 10px; border: none;
             font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s;
+            margin-bottom: 10px;
         }
-        #unlockBtn { background: #f39c12; color: #fff; }
-        #submitBtn { background: #0088cc; color: white; display: none; }
-        .status { font-size: 12px; color: #808d9a; margin-top: 10px; }
+        #unlockBtn { 
+            background: linear-gradient(90deg, #f39c12, #e67e22); 
+            color: #fff; 
+        }
+        #unlockBtn:active { transform: scale(0.98); }
+        
+        #submitBtn { 
+            background: #2ecc71; color: white; display: none; 
+        }
+        .status { font-size: 13px; color: #808d9a; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -41,40 +50,51 @@
     <h2>🎬 Movie Request</h2>
     <input type="text" id="movieInput" placeholder="Film එකේ නම මෙතන ගහන්න...">
     
-    <button id="unlockBtn" class="btn" onclick="showTelegramAd()">🔓 Unlock to Request</button>
+    <button id="unlockBtn" class="btn" onclick="showTelegramAd()">🔓 Unlock (Watch 3 Ads)</button>
     
     <button id="submitBtn" class="btn" onclick="sendToBot()">🚀 Submit Request</button>
     
-    <p class="status" id="statusText">බටන් එක Unlock කරන්න ඇඩ් එකක් බලන්න.</p>
+    <p class="status" id="statusText">Request එක යවන්න ඇඩ් 3ක් බලන්න.</p>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    tg.expand(); // App එක ලොකු කරලා පෙන්වන්න
+    tg.expand();
 
-    // මේක ඔයාගේ Moneytag එකෙන් දෙන Function එක වෙන්න ඕන
-function showTelegramAd() {
-    // මෙතන 8888888 වෙනුවට ඔයාගේ Zone ID එක අනිවාර්යයෙන්ම දාන්න
-    if (typeof show_10644912 === 'function') { 
-        show_10644912().then(() => {
-            // ඇඩ් එක බලලා ඉවර වුණාම මේක වැඩ කරනවා
-            unlockSubmit();
-        }).catch((e) => {
-            // ඇඩ් එක පෙන්නන්න බැරි වුණොත් එන error එක
-            console.error("Ad error:", e);
-            alert("Please try again in a moment.");
-        });
-    } else {
-        // Script එක හරියට Load වෙලා නැත්නම්
-        alert("Ad loading... Please wait.");
+    let adCount = 0;
+    const requiredAds = 3;
+
+    function showTelegramAd() {
+        // ඔයාගේ Zone ID එක හරහා ඇඩ් එක පෙන්වීම
+        if (typeof show_10644912 === 'function') {
+            show_10644912().then(() => {
+                // ඇඩ් එක සාර්ථකව බැලුවාම
+                adCount++;
+                updateStatus();
+            }).catch((e) => {
+                console.error("Ad Error:", e);
+                alert("ඇඩ් එක ප්ලේ වුණේ නැහැ. කරුණාකර නැවත උත්සාහ කරන්න.");
+            });
+        } else {
+            alert("Ads loading... කරුණාකර තත්පර කිහිපයක් රැඳී සිටින්න.");
+        }
     }
-}
 
- 
-    function unlockSubmit() {
-        document.getElementById('unlockBtn').style.display = 'none';
-        document.getElementById('submitBtn').style.display = 'block';
-        document.getElementById('statusText').innerText = "දැන් ඔයාට Submit කරන්න පුළුවන්!";
+    function updateStatus() {
+        const btn = document.getElementById('unlockBtn');
+        const statusText = document.getElementById('statusText');
+        const remaining = requiredAds - adCount;
+
+        if (adCount < requiredAds) {
+            btn.innerText = `🔓 Watch ${remaining} more to Unlock`;
+            statusText.innerText = `තව ඇඩ් ${remaining}ක් බලන්න.`;
+        } else {
+            // ඇඩ් 3ම බැලුවාම බටන් මාරු කරනවා
+            btn.style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'block';
+            statusText.innerText = "දැන් ඔයාට රික්වෙස්ට් එක යවන්න පුළුවන්!";
+            statusText.style.color = "#2ecc71";
+        }
     }
 
     function sendToBot() {
@@ -84,9 +104,13 @@ function showTelegramAd() {
             return;
         }
         
-        // Bot එකට Data යැවීම
-        tg.sendData("NEW_REQUEST:" + movieName);
-        tg.close(); // ඇප් එක ඉබේම වැහෙනවා
+        // Bot වෙත දත්ත යැවීම
+        tg.sendData("REQUEST:" + movieName);
+        
+        // තත්පරයකට පසු ඇප් එක වසා දැමීම
+        setTimeout(() => {
+            tg.close();
+        }, 500);
     }
 </script>
 
