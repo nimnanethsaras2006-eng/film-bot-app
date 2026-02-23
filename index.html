@@ -52,23 +52,25 @@
     const tg = window.Telegram.WebApp;
     tg.expand(); // App එක ලොකු කරලා පෙන්වන්න
 
-    function showTelegramAd() {
-        // Moneytag Interstitial Ad එක පෙන්වීමට උත්සාහ කිරීම
-        if (typeof show_10644912 === 'function') { // 8888888 වෙනුවට ඔයාගේ Zone ID එක එයි
-            show_10644912().then(() => {
-                // ඇඩ් එක බලා අවසන් වූ පසු
-                unlockSubmit();
-            }).catch(() => {
-                // ඇඩ් එක පෙන්වීමට අපොහොසත් වුවහොත් (උදා: Adblock)
-                alert("Please wait a moment and try again.");
-                unlockSubmit(); // පසුවට මේක manually unlock කරන්නත් පුළුවන්
-            });
-        } else {
-            // SDK එක තාම load වෙලා නැත්නම් පොඩි වෙලාවක් දීලා unlock කරනවා
-            setTimeout(unlockSubmit, 3000);
-        }
+    // මේක ඔයාගේ Moneytag එකෙන් දෙන Function එක වෙන්න ඕන
+function showTelegramAd() {
+    // මෙතන 8888888 වෙනුවට ඔයාගේ Zone ID එක අනිවාර්යයෙන්ම දාන්න
+    if (typeof show_10644912 === 'function') { 
+        show_10644912().then(() => {
+            // ඇඩ් එක බලලා ඉවර වුණාම මේක වැඩ කරනවා
+            unlockSubmit();
+        }).catch((e) => {
+            // ඇඩ් එක පෙන්නන්න බැරි වුණොත් එන error එක
+            console.error("Ad error:", e);
+            alert("Please try again in a moment.");
+        });
+    } else {
+        // Script එක හරියට Load වෙලා නැත්නම්
+        alert("Ad loading... Please wait.");
     }
+}
 
+ 
     function unlockSubmit() {
         document.getElementById('unlockBtn').style.display = 'none';
         document.getElementById('submitBtn').style.display = 'block';
