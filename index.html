@@ -9,45 +9,16 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-        body {
-            background-color: #0e1621; color: white;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;
-        }
-        .app-container {
-            width: 85%; max-width: 350px; background: #17212b;
-            padding: 25px; border-radius: 20px; text-align: center;
-            border: 1px solid #242f3d;
-        }
-        h2 { color: #52a8ff; font-size: 22px; margin-bottom: 15px; }
-        
-        input {
-            width: 100%; padding: 12px; margin-bottom: 20px;
-            border-radius: 10px; border: 1px solid #242f3d;
-            background: #242f3d; color: white; box-sizing: border-box;
-        }
-
-        .btn {
-            width: 100%; padding: 14px; border-radius: 10px; border: none;
-            font-size: 16px; font-weight: bold; cursor: pointer;
-        }
-        
-        /* Unlock Button - මේක දිගටම පේනවා ඇඩ් 3 ඉවර වෙනකම් */
-        #unlockBtn { 
-            background: #f39c12; color: #fff; 
-        }
-        
-        /* Submit Button - මේක මුලින් පේන්නේ නැහැ */
-        #submitBtn { 
-            background: #2ecc71; color: white; display: none; 
-        }
-        
+        body { background-color: #0e1621; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .app-container { width: 85%; max-width: 350px; background: #17212b; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid #242f3d; }
+        h2 { color: #52a8ff; font-size: 22px; }
+        input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 10px; border: 1px solid #242f3d; background: #242f3d; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; }
+        #unlockBtn { background: #f39c12; color: #fff; }
+        #unlockBtn:disabled { background: #555; cursor: not-allowed; }
+        #submitBtn { background: #2ecc71; color: white; display: none; }
         .status { font-size: 13px; color: #808d9a; margin-top: 15px; }
-        .badge {
-            background: #242f3d; padding: 5px 15px;
-            border-radius: 20px; color: #52a8ff; font-size: 14px;
-            display: inline-block; margin-bottom: 15px;
-        }
+        .badge { background: #242f3d; padding: 5px 15px; border-radius: 20px; color: #52a8ff; font-size: 14px; display: inline-block; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -55,14 +26,10 @@
 <div class="app-container">
     <h2>🎬 Film Request</h2>
     <div class="badge" id="counter">Ads Watched: 0/3</div>
-    
-    <input type="text" id="movieInput" placeholder="Enter Movie Name...">
-    
-    <button id="unlockBtn" class="btn" onclick="handleAdLogic()">🔓 Watch Ad to Unlock</button>
-    
+    <input type="text" id="movieInput" placeholder="Movie Name...">
+    <button id="unlockBtn" class="btn" onclick="playAd()">🔓 Watch Ad to Unlock</button>
     <button id="submitBtn" class="btn" onclick="sendToBot()">🚀 Submit Request</button>
-    
-    <p class="status" id="statusText">Request එක යවන්න ඇඩ් 3ක් බලන්න.</p>
+    <p class="status" id="statusText">රික්වෙස්ට් එක එවන්න ඇඩ් 3ක් බලන්න.</p>
 </div>
 
 <script>
@@ -72,42 +39,54 @@
     let count = 0;
     const goal = 3;
 
-    function handleAdLogic() {
+    function playAd() {
+        const uBtn = document.getElementById('unlockBtn');
+        
+        // 1. මුලින්ම SDK එක ලෝඩ් වෙලාද බලනවා
         if (typeof show_10644912 === 'function') {
-            const uBtn = document.getElementById('unlockBtn');
-            uBtn.innerText = "Loading Ad...";
             uBtn.disabled = true;
+            uBtn.innerText = "Loading Ad...";
 
+            // 2. ඇඩ් එක ප්ලේ කරනවා
             show_10644912().then(() => {
-                count++; // ඇඩ් එකක් බැලුවාම count එක වැඩි කරනවා
-                uBtn.disabled = false;
-                
-                // ඇඩ් ගණන පෙන්වන තැන update කරනවා
-                document.getElementById('counter').innerText = `Ads Watched: ${count}/${goal}`;
-
-                if (count < goal) {
-                    // තව ඇඩ් බලන්න තියෙනවා නම්
-                    uBtn.innerText = `🔓 Watch Next Ad (${goal - count} left)`;
-                    document.getElementById('statusText').innerText = `තව ඇඩ් ${goal - count}ක් බලන්න.`;
-                } else {
-                    // ඇඩ් 3ම බැලුවාම බටන් මාරු කරනවා
-                    uBtn.style.display = 'none';
-                    document.getElementById('submitBtn').style.display = 'block';
-                    document.getElementById('statusText').innerText = "දැන් Submit කරන්න!";
-                    document.getElementById('statusText').style.color = "#2ecc71";
-                }
+                // ඇඩ් එක සාර්ථකව ප්ලේ වුණොත් විතරයි මෙතනට එන්නේ
+                count++;
+                updateUI();
             }).catch((e) => {
+                // ඇඩ් එකක් නැත්නම් හෝ ප්ලේ වුණේ නැත්නම්
                 uBtn.disabled = false;
                 uBtn.innerText = "🔓 Watch Ad to Unlock";
-                alert("Ads ලෝඩ් වුණේ නැහැ. තත්පර කිහිපයකින් නැවත උත්සාහ කරන්න.");
+                alert("දැනට ඇඩ් එකක් සූදානම් නැහැ. කරුණාකර තත්පර 15ක් ඉඳලා ආයේ ට්‍රයි කරන්න. (Moneytag එකෙන් එක පිට එක ඇඩ් දෙන්නේ නැහැ)");
             });
+        } else {
+            alert("Ads තාම ලෝඩ් වෙනවා... පොඩ්ඩක් ඉන්න.");
+        }
+    }
+
+    function updateUI() {
+        const uBtn = document.getElementById('unlockBtn');
+        const sBtn = document.getElementById('submitBtn');
+        const counter = document.getElementById('counter');
+        const status = document.getElementById('statusText');
+
+        uBtn.disabled = false;
+        counter.innerText = `Ads Watched: ${count}/${goal}`;
+
+        if (count < goal) {
+            uBtn.innerText = `🔓 Watch Next Ad (${goal - count} left)`;
+            status.innerText = `තව ඇඩ් ${goal - count}ක් බලන්න.`;
+        } else {
+            uBtn.style.display = 'none';
+            sBtn.style.display = 'block';
+            status.innerText = "දැන් ඔයාට Submit කරන්න පුළුවන්!";
+            status.style.color = "#2ecc71";
         }
     }
 
     function sendToBot() {
         const movie = document.getElementById('movieInput').value;
         if (movie.trim() === "") {
-            tg.showAlert("කරුණාකර නම ඇතුළත් කරන්න.");
+            tg.showAlert("Film එකේ නම ඇතුළත් කරන්න.");
             return;
         }
         tg.sendData("REQUEST:" + movie);
